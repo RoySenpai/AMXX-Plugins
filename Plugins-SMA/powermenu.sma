@@ -94,7 +94,7 @@ new const Float:g_iWeaponsMaxSpeed[CSW_LAST_WEAPON + 1] =
 public plugin_init() {
 	register_plugin("Power Menu",PLUGIN_VERSION,"Hyuna");
 
-	register_saycmd("power","cmdPower",ADMIN_CHAT);
+	register_saycmd("power","cmdPower",ADMIN_FLAG);
 
 	RegisterHam(Ham_CS_Player_ResetMaxSpeed,"player","fw_HamResetMaxSpeedPre",0);
 	RegisterHam(Ham_Spawn,"player","fw_HamPlayerSpawnPost",1);
