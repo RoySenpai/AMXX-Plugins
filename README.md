@@ -14,5 +14,6 @@ Counter-Strike 1.6 only. Maybe also Half-Life 1, buy mainly CS 1.6.
 ## Plugins in this repository
 - Buy Admin Plugin (buyadmin.sma)
 - [JailBreak] Countdown Menu (countdown.sma)
+- Admin Power Menu (powermenu.sma)
  
 More plugins coming soon!
