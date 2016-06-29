@@ -38,7 +38,7 @@
 #define ADMIN_FLAG ADMIN_CHAT
 
 const Float:g_fMinGravity = 0.5;
-const Float: g_fMaxSpeed = 500.0;
+const Float:g_fMaxSpeed = 500.0;
 
 // End of settings
 
@@ -56,7 +56,7 @@ new bool:g_bData[MAX_PLAYERS + 1][dData];
 new const g_szData[dData][16] = { "Noclip", "GodMode", "Gravity", "Speed" };
 
 // Weapons Max Speed data
-new const Float:g_iWeaponsMaxSpeed[CSW_LAST_WEAPON + 1] = 
+new const Float:g_iWeaponsMaxSpeed[CSW_LAST_WEAPON + 1] =
 {
 	250.0,	// No weapon
 	250.0,	// P228
@@ -103,7 +103,7 @@ public plugin_init() {
 }
 
 public fw_HamResetMaxSpeedPre(client) {
-	if (g_bData[client][dSpeed])	
+	if (g_bData[client][dSpeed])
 		return HAM_SUPERCEDE;
 
 	return HAM_IGNORED;
@@ -134,7 +134,7 @@ public cmdPower(client, level, cid) {
 
 CreateMenu(client) {
 	static some[256], iMenu;
-	
+
 	iMenu = menu_create("\d[\yAMXX\d] \wAdmin Power Menu","mHandler");
 
 	formatex(some,charsmax(some),"\yNoclip - \d[ \r%s \d]",(g_bData[client][dNoclip] ? "ON":"OFF"));
@@ -171,7 +171,7 @@ public mHandler(client, menu, item) {
 		case 3:	set_user_maxspeed(client,(g_bData[client][dSpeed] ? g_fMaxSpeed:g_iWeaponsMaxSpeed[get_user_weapon(client)]));
 	}
 
-	client_print(client,print_chat,"[AMXX] You have %sabled %s.",(g_bData[client][item] ? "en":"dis"),g_szData[item]);	
+	client_print(client,print_chat,"[AMXX] You have %sabled %s.",(g_bData[client][item] ? "en":"dis"),g_szData[item]);
 
 	menu_destroy(menu);
 
