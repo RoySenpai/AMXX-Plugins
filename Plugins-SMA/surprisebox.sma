@@ -230,25 +230,25 @@ public mHandler(client, menu, item) {
 				case 0..19:	// 20% chance
 				{
 					client_print_color(client,print_team_default,"%s You opened the box and got ^4XXXXX^1.",PREFIX);
-					client_print_color(0,client,"%s ^3%s^1 opened an ^4Surprise Box^1, and got ^4XXXXX^1.",PREFIX,szName);
+					client_print_color(0,client,"%s ^3%s^1 opened a ^4Surprise Box^1, and got ^4XXXXX^1.",PREFIX,szName);
 				}
 
 				case 20..39: // 20% chance
 				{
 					client_print_color(client,print_team_default,"%s You opened the box and got ^4YYYYY^1.",PREFIX);
-					client_print_color(0,client,"%s ^3%s^1 opened an ^4Surprise Box^1, and got ^4YYYYY^1.",PREFIX,szName);
+					client_print_color(0,client,"%s ^3%s^1 opened a ^4Surprise Box^1, and got ^4YYYYY^1.",PREFIX,szName);
 				}
 
 				case 40..59: // 20% chance
 				{
 					client_print_color(client,print_team_default,"%s You opened the box and got ^4ZZZZZ^1.",PREFIX);
-					client_print_color(0,client,"%s ^3%s^1 opened an ^4Surprise Box^1, and got ^4ZZZZZ^1.",PREFIX,szName);
+					client_print_color(0,client,"%s ^3%s^1 opened a ^4Surprise Box^1, and got ^4ZZZZZ^1.",PREFIX,szName);
 				}
 
 				case 60..99: // 40% chance
 				{
 					client_print_color(client,print_team_red,"%s Sorry, but the box is ^3empty^1! Try next time.",PREFIX);
-					client_print_color(0,client,"%s ^3%s^1 opened an ^4Surprise Box^1, but it was ^4empty^1.",PREFIX,szName);
+					client_print_color(0,client,"%s ^3%s^1 opened a ^4Surprise Box^1, but it was ^4empty^1.",PREFIX,szName);
 				}
 			}
 		}
