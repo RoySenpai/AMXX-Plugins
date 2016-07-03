@@ -4,7 +4,7 @@
 
 * Plugin Name: Surprise Box
 * Plugin Descption: Drop a Surprise Box from killed players.
-* Plugin Version: 1.0
+* Plugin Version: 1.1
 * Plugin Creator: Hyuna aka NorToN
 * Creator URL: http://steamcommunity.com/id/KissMyAsscom
 * License: GNU GPL v3 (see below)
@@ -26,6 +26,17 @@
 * amx_sboxversion - Shows plugin version.
 
 
+****** Natives ******
+
+* is_client_onboxmenu(client) - Returns if a selected client is in the select menu.
+
+
+****** Forwards ******
+
+* OnClientAttempOpenBox(client) - Called when a player attemps open a box. return PLUGIN_HANDLED to block.
+* OnClientTouchBox(client, iEnt) - Called when a player touches a box. return PLUGIN_HANDLED to block.
+
+
 ****** Includes ******
 
 * #include <amxmodx>
@@ -37,6 +48,9 @@
 ****** Change Log ******
 
 * V 1.0 - First Public Release.
+* V 1.1 - Added OnClientOpenBox forward.
+* Added OnClientTouchBox forward.
+* Added is_client_onboxmenu native.
 
 
 ****** Credits ******
@@ -76,7 +90,7 @@
 	#assert Amx Mod X Version 1.83 and above is needed to run this plugin!
 #endif
 
-#define PLUGIN_VERSION "v1.0"
+#define PLUGIN_VERSION "v1.1"
 
 #define PREFIX "[ ^4AMXX^1 ]"
 
@@ -95,6 +109,8 @@ new g_iMenu;
 
 new g_iEntCount;
 
+new g_iForwardOnAttemp, g_iForwardOnTouch;
+
 new bool:g_bIsInMenu[MAX_PLAYERS + 1];
 
 public plugin_init() {
@@ -109,6 +125,15 @@ public plugin_init() {
 	RegisterHamPlayer(Ham_Killed,"fw_HamPlayerKilledPost",1);
 
 	register_event("HLTV","fw_eventNewRound","a","1=0","2=0");
+
+	g_iForwardOnAttemp = CreateMultiForward("OnClientAttempOpenBox",ET_STOP,FP_CELL);
+	g_iForwardOnTouch = CreateMultiForward("OnClientTouchBox",ET_STOP,FP_CELL,FP_CELL);
+
+	if (g_iForwardOnAttemp == INVALID_HANDLE)
+		set_fail_state("Failed to create OnClientAttempOpenBox forward");
+
+	if (g_iForwardOnTouch == INVALID_HANDLE)
+		set_fail_state("Failed to create OnClientTouchBox forward");
 }
 
 public plugin_precache() {
@@ -122,12 +147,38 @@ public plugin_precache() {
 	precache_model(g_szModel);
 }
 
+public plugin_natives() {
+	// Library
+	register_library("SurpriseBox");
+
+	register_native("is_client_onboxmenu","native_is_client_onboxmenu",0);
+}
+
+public native_is_client_onboxmenu(pluginid, params) {
+	static client;
+	client = get_param(1);
+
+	if (!is_user_connected(client))
+	{
+		log_error(AMX_ERR_NATIVE,"[Suprise Box API] ERROR: Client %d is invalid.",client);
+		return false;
+	}
+
+	return g_bIsInMenu[client];
+}
+
 public plugin_cfg() {
 	g_iMenu = menu_create("\d[ \rAMXX \d] \yYou have picked a Surprise Box. ^nDo you want to open it?","mHandler");
 	menu_additem(g_iMenu,"Yes");
 	menu_additem(g_iMenu,"No");
 
 	menu_setprop(g_iMenu,MPROP_EXIT,MEXIT_NEVER);
+}
+
+public plugin_end() {
+	// Prevent AMXX memory leak
+	DestroyForward(g_iForwardOnAttemp);
+	DestroyForward(g_iForwardOnTouch);
 }
 
 public cmdPurgeBoxes(client,level,cid) {
@@ -193,7 +244,7 @@ public fw_HamPlayerKilledPost(idvictim, idattacker, bool:shouldgib) {
 }
 
 public fw_HamEntityTouchPost(iEnt, idother) {
-	static szClassname[32];
+	static szClassname[32], ret;
 
 	if (!is_user_alive(idother) || !pev_valid(iEnt))
 		return;
@@ -201,6 +252,11 @@ public fw_HamEntityTouchPost(iEnt, idother) {
 	pev(iEnt,pev_classname,szClassname,charsmax(szClassname));
 
 	if (!equal(szClassname,g_szSurpriseBoxClassname))
+		return;
+
+	ExecuteForward(g_iForwardOnTouch,ret,idother,iEnt);
+
+	if (ret == PLUGIN_HANDLED)
 		return;
 
 	if (g_bIsInMenu[idother])
@@ -217,10 +273,18 @@ public fw_HamEntityTouchPost(iEnt, idother) {
 }
 
 public mHandler(client, menu, item) {
-	static szName[32];
+	static szName[32], ret;
 
 	if (item == 0)
 	{
+		ExecuteForward(g_iForwardOnAttemp,ret,client);
+
+		if (ret == PLUGIN_HANDLED)
+		{
+			g_bIsInMenu[client] = false;
+			return PLUGIN_HANDLED;
+		}
+
 		if (is_user_alive(client))
 		{
 			get_user_name(client,szName,charsmax(szName));
