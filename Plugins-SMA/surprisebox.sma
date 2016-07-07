@@ -29,11 +29,11 @@
 ****** Natives ******
 
 * is_client_onboxmenu(client) - Returns if a selected client is in the select menu.
-* client_forceboxmenu(client) - Force showing supply box menu to a selected client.
-* create_supplybox(Float:origin[3]) - Makes a supply box with given origin. Returns ent id if success or -1 if failed (too much boxes/can't create).
-* purge_supplyboxes() - Deletes all supply boxes, if there are. Returns 1 on success or 0 if no box entities found.
-* get_supplybox_count() - Returns current supply box count (It just returns g_iEntCount value).
-* get_supplybox_maxcount() - Returns maximum supply boxes entites allowed (It just returns MAX_BOX_ENTITES value).
+* client_forceboxmenu(client) - Force showing surprise box menu to a selected client.
+* create_surprisebox(Float:origin[3]) - Makes a surprise box with given origin. Returns ent id if success or -1 if failed (too much boxes/can't create).
+* purge_surpriseboxes() - Deletes all supply boxes, if there are. Returns 1 on success or 0 if no box entities found.
+* get_surprisebox_count() - Returns current surprise box count (It just returns g_iEntCount value).
+* get_surprisebox_maxcount() - Returns maximum surprise boxes entites allowed (It just returns MAX_BOX_ENTITES value).
 
 
 ****** Forwards ******
@@ -58,11 +58,11 @@
 * Added OnClientTouchBox forward.
 * Added is_client_onboxmenu native.
 
-* V 1.2 - Added create_supplybox native.
+* V 1.2 - Added create_surprisebox native.
 * Added client_forceboxmenu native.
-* Added purge_supplyboxes native.
-* Added get_supplybox_count native.
-* Added get_supplybox_maxcount native.
+* Added purge_surpriseboxes native.
+* Added get_surprisebox_count native.
+* Added get_surprisebox_maxcount native.
 * Updated API: Now the plugin has an official include.
 
 
@@ -162,14 +162,14 @@ public plugin_precache() {
 
 public plugin_natives() {
 	// Library
-	register_library("SurpriseBox");
+	register_library("Su");
 
 	register_native("is_client_onboxmenu","native_is_client_onboxmenu",0);
 	register_native("client_forceboxmenu","native_client_forceboxmenu",0);
-	register_native("create_supplybox","native_create_supplybox",0);
-	register_native("purge_supplyboxes","native_purge_supplyboxes",0);
-	register_native("get_supplybox_count","native_get_supplybox_count",0);
-	register_native("get_supplybox_maxcount","native_get_supplybox_maxcount",0);
+	register_native("create_surprisebox","native_create_surprisebox",0);
+	register_native("purge_surpriseboxes","native_purge_surpriseboxes",0);
+	register_native("get_surprisebox_count","native_get_surprisebox_count",0);
+	register_native("get_surprisebox_maxcount","native_get_surprisebox_maxcount",0);
 }
 
 public native_is_client_onboxmenu(pluginid, params) {
@@ -203,7 +203,7 @@ public native_client_forceboxmenu(pluginid, params) {
 	return 1;
 }
 
-public native_create_supplybox(pluginid, params) {
+public native_create_surprisebox(pluginid, params) {
 	static Float:fOrigin[3], ent;
 	get_array(1,fOrigin,charsmax(fOrigin));
 
@@ -218,7 +218,7 @@ public native_create_supplybox(pluginid, params) {
 	return ent;
 }
 
-public native_purge_supplyboxes(pluginid, params) {
+public native_purge_surpriseboxes(pluginid, params) {
 	if (!g_iEntCount)
 		return 0;
 
@@ -227,11 +227,11 @@ public native_purge_supplyboxes(pluginid, params) {
 	return 1;
 }
 
-public native_get_supplybox_count(pluginid, params) {
+public native_get_surprisebox_count(pluginid, params) {
 	return g_iEntCount;
 }
 
-public native_get_supplybox_maxcount(pluginid, params) {
+public native_get_surprisebox_maxcount(pluginid, params) {
 	return MAX_BOX_ENTITES;
 }
 
