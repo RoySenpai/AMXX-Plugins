@@ -1,6 +1,6 @@
 /* Supply Box API
 
-* Updated to v1.2
+* Updated to v1.2.1
 * By Hyuna
 * Creator URL: http://steamcommunity.com/id/KissMyAsscom
 */
@@ -20,6 +20,8 @@
 	#pragma library SurpriseBox
 #endif
 
+// Max Surprise Box entites - to prevent crashes and lags
+#define MAX_BOX_ENTITES 20
 
 /* Forwards */
 
