@@ -4,7 +4,7 @@
 
 * Plugin Name: Surprise Box
 * Plugin Descption: Drop a Surprise Box from killed players.
-* Plugin Version: 1.2
+* Plugin Version: 1.2.1
 * Plugin Creator: Hyuna aka NorToN
 * Creator URL: http://steamcommunity.com/id/KissMyAsscom
 * License: GNU GPL v3 (see below)
@@ -33,7 +33,6 @@
 * create_surprisebox(Float:origin[3]) - Makes a surprise box with given origin. Returns ent id if success or -1 if failed (too much boxes/can't create).
 * purge_surpriseboxes() - Deletes all supply boxes, if there are. Returns 1 on success or 0 if no box entities found.
 * get_surprisebox_count() - Returns current surprise box count (It just returns g_iEntCount value).
-* get_surprisebox_maxcount() - Returns maximum surprise boxes entites allowed (It just returns MAX_BOX_ENTITES value).
 
 
 ****** Forwards ******
@@ -48,6 +47,7 @@
 * #include <amxmisc>
 * #include <fakemeta>
 * #include <hamsandwich>
+* #include <surprisebox>
 
 
 ****** Change Log ******
@@ -64,6 +64,8 @@
 * Added get_surprisebox_count native.
 * Added get_surprisebox_maxcount native.
 * Updated API: Now the plugin has an official include.
+
+* V 1.2.1 - Small fixes
 
 
 ****** Credits ******
@@ -96,6 +98,7 @@
 #include <amxmisc>
 #include <fakemeta>
 #include <hamsandwich>
+#include <surprisebox>
 
 #pragma semicolon 1
 
@@ -103,12 +106,9 @@
 	#assert Amx Mod X Version 1.83 and above is needed to run this plugin!
 #endif
 
-#define PLUGIN_VERSION "v1.2"
+#define PLUGIN_VERSION "v1.2.1"
 
 #define PREFIX "[ ^4AMXX^1 ]"
-
-// Max Surprise Box entites - to prevent crashes and lags
-#define MAX_BOX_ENTITES 20
 
 // Entity Size
 new Float:g_iEntMax[3] = { 5.0, 5.0, 5.0 };
@@ -162,14 +162,14 @@ public plugin_precache() {
 
 public plugin_natives() {
 	// Library
-	register_library("Su");
+	register_library("SurpriseBox");
 
+	// Natives
 	register_native("is_client_onboxmenu","native_is_client_onboxmenu",0);
 	register_native("client_forceboxmenu","native_client_forceboxmenu",0);
 	register_native("create_surprisebox","native_create_surprisebox",0);
 	register_native("purge_surpriseboxes","native_purge_surpriseboxes",0);
 	register_native("get_surprisebox_count","native_get_surprisebox_count",0);
-	register_native("get_surprisebox_maxcount","native_get_surprisebox_maxcount",0);
 }
 
 public native_is_client_onboxmenu(pluginid, params) {
@@ -205,7 +205,7 @@ public native_client_forceboxmenu(pluginid, params) {
 
 public native_create_surprisebox(pluginid, params) {
 	static Float:fOrigin[3], ent;
-	get_array(1,fOrigin,charsmax(fOrigin));
+	get_array_f(1,fOrigin,charsmax(fOrigin));
 
 	if (g_iEntCount == MAX_BOX_ENTITES)
 		return INVALID_HANDLE;
@@ -229,10 +229,6 @@ public native_purge_surpriseboxes(pluginid, params) {
 
 public native_get_surprisebox_count(pluginid, params) {
 	return g_iEntCount;
-}
-
-public native_get_surprisebox_maxcount(pluginid, params) {
-	return MAX_BOX_ENTITES;
 }
 
 public plugin_cfg() {
