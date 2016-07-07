@@ -4,7 +4,7 @@
 
 * Plugin Name: Surprise Box
 * Plugin Descption: Drop a Surprise Box from killed players.
-* Plugin Version: 1.1
+* Plugin Version: 1.2
 * Plugin Creator: Hyuna aka NorToN
 * Creator URL: http://steamcommunity.com/id/KissMyAsscom
 * License: GNU GPL v3 (see below)
@@ -29,6 +29,11 @@
 ****** Natives ******
 
 * is_client_onboxmenu(client) - Returns if a selected client is in the select menu.
+* client_forceboxmenu(client) - Force showing supply box menu to a selected client.
+* create_supplybox(Float:origin[3]) - Makes a supply box with given origin. Returns ent id if success or -1 if failed (too much boxes/can't create).
+* purge_supplyboxes() - Deletes all supply boxes, if there are. Returns 1 on success or 0 if no box entities found.
+* get_supplybox_count() - Returns current supply box count (It just returns g_iEntCount value).
+* get_supplybox_maxcount() - Returns maximum supply boxes entites allowed (It just returns MAX_BOX_ENTITES value).
 
 
 ****** Forwards ******
@@ -48,9 +53,17 @@
 ****** Change Log ******
 
 * V 1.0 - First Public Release.
+
 * V 1.1 - Added OnClientOpenBox forward.
 * Added OnClientTouchBox forward.
 * Added is_client_onboxmenu native.
+
+* V 1.2 - Added create_supplybox native.
+* Added client_forceboxmenu native.
+* Added purge_supplyboxes native.
+* Added get_supplybox_count native.
+* Added get_supplybox_maxcount native.
+* Updated API: Now the plugin has an official include.
 
 
 ****** Credits ******
@@ -90,7 +103,7 @@
 	#assert Amx Mod X Version 1.83 and above is needed to run this plugin!
 #endif
 
-#define PLUGIN_VERSION "v1.1"
+#define PLUGIN_VERSION "v1.2"
 
 #define PREFIX "[ ^4AMXX^1 ]"
 
@@ -152,6 +165,11 @@ public plugin_natives() {
 	register_library("SurpriseBox");
 
 	register_native("is_client_onboxmenu","native_is_client_onboxmenu",0);
+	register_native("client_forceboxmenu","native_client_forceboxmenu",0);
+	register_native("create_supplybox","native_create_supplybox",0);
+	register_native("purge_supplyboxes","native_purge_supplyboxes",0);
+	register_native("get_supplybox_count","native_get_supplybox_count",0);
+	register_native("get_supplybox_maxcount","native_get_supplybox_maxcount",0);
 }
 
 public native_is_client_onboxmenu(pluginid, params) {
@@ -165,6 +183,56 @@ public native_is_client_onboxmenu(pluginid, params) {
 	}
 
 	return g_bIsInMenu[client];
+}
+
+public native_client_forceboxmenu(pluginid, params) {
+	static client;
+	client = get_param(1);
+
+	if (!is_user_connected(client))
+	{
+		log_error(AMX_ERR_NATIVE,"[Suprise Box API] ERROR: Client %d is invalid.",client);
+		return 0;
+	}
+
+	if (is_user_bot(client) || is_user_hltv(client))
+		return -1;
+
+	menu_display(client,g_iMenu);
+
+	return 1;
+}
+
+public native_create_supplybox(pluginid, params) {
+	static Float:fOrigin[3], ent;
+	get_array(1,fOrigin,charsmax(fOrigin));
+
+	if (g_iEntCount == MAX_BOX_ENTITES)
+		return INVALID_HANDLE;
+
+	ent = CreateSupplyBox(fOrigin,true);
+
+	if (!pev_valid(ent))
+		return INVALID_HANDLE;
+
+	return ent;
+}
+
+public native_purge_supplyboxes(pluginid, params) {
+	if (!g_iEntCount)
+		return 0;
+
+	PurgeBoxEntities();
+
+	return 1;
+}
+
+public native_get_supplybox_count(pluginid, params) {
+	return g_iEntCount;
+}
+
+public native_get_supplybox_maxcount(pluginid, params) {
+	return MAX_BOX_ENTITES;
 }
 
 public plugin_cfg() {
@@ -240,7 +308,7 @@ public fw_HamPlayerKilledPost(idvictim, idattacker, bool:shouldgib) {
 
 	pev(idvictim,pev_origin,fOrigin);
 
-	CreateSupplyBox(fOrigin);
+	CreateSupplyBox(fOrigin,false);
 }
 
 public fw_HamEntityTouchPost(iEnt, idother) {
@@ -329,20 +397,28 @@ public mHandler(client, menu, item) {
 	return PLUGIN_HANDLED;
 }
 
-CreateSupplyBox(Float:origin[3]) {
-	if (g_iEntCount == MAX_BOX_ENTITES)
+CreateSupplyBox(Float:origin[3], bool:isnative) {
+	if (!isnative)
 	{
-		log_amx("Warning: Max box entites reached (%d). Plugin won't create new box entites until it will purge.",MAX_BOX_ENTITES);
-		log_amx("Use amx_purgeboxes command to purge all boxes.");
-		client_print_color(0,print_team_red,"%s ^3WARNING:^1 Max surprise box entities reached (^4%d^1), need a purge!",PREFIX,MAX_BOX_ENTITES);
+		if (g_iEntCount == MAX_BOX_ENTITES)
+		{
+			log_amx("Warning: Max box entites reached (%d). Plugin won't create new box entites until it will purge.",MAX_BOX_ENTITES);
+			log_amx("Use amx_purgeboxes command to purge all boxes.");
+			client_print_color(0,print_team_red,"%s ^3WARNING:^1 Max surprise box entities reached (^4%d^1), need a purge!",PREFIX,MAX_BOX_ENTITES);
 
-		return -1;
+			return -1;
+		}
 	}
 
 	new iEnt = engfunc(EngFunc_CreateNamedEntity,engfunc(EngFunc_AllocString,"info_target"));
 
 	if (!pev_valid(iEnt))
-		set_fail_state("Error creating surprise box entity");
+	{
+		if (!isnative)
+			set_fail_state("Error creating surprise box entity");
+
+		return -1;
+	}
 
 	// Set classname
 	set_pev(iEnt,pev_classname,g_szSurpriseBoxClassname);
