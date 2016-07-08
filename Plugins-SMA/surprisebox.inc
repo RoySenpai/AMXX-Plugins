@@ -91,11 +91,3 @@ native purge_surpriseboxes();
  */
 native get_surprisebox_count();
 
-/**
- * Returns number of the maximum supply box entities allowed.
- *
- * @noparams
- * @return		Maximum supply boxes allowed.
- */
-native get_surprisebox_maxcount();
-
