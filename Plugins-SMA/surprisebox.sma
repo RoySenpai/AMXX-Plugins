@@ -4,7 +4,7 @@
 
 * Plugin Name: Surprise Box
 * Plugin Descption: Drop a Surprise Box from killed players.
-* Plugin Version: 1.2.1
+* Plugin Version: 1.2.2
 * Plugin Creator: Hyuna aka NorToN
 * Creator URL: http://steamcommunity.com/id/KissMyAsscom
 * License: GNU GPL v3 (see below)
@@ -31,6 +31,7 @@
 * is_client_onboxmenu(client) - Returns if a selected client is in the select menu.
 * client_forceboxmenu(client) - Force showing surprise box menu to a selected client.
 * create_surprisebox(Float:origin[3]) - Makes a surprise box with given origin. Returns ent id if success or -1 if failed (too much boxes/can't create).
+* remove_surprisebox(iEnt) - Removes a given surprise box entity. Returns 1 on success, 0 if the ent isn't surprise box or throwing an error when entity isn't valid.
 * purge_surpriseboxes() - Deletes all supply boxes, if there are. Returns 1 on success or 0 if no box entities found.
 * get_surprisebox_count() - Returns current surprise box count (It just returns g_iEntCount value).
 
@@ -66,6 +67,8 @@
 * Updated API: Now the plugin has an official include.
 
 * V 1.2.1 - Small fixes
+
+* V 1.2.2 - Added remove_surprisebox native.
 
 
 ****** Credits ******
@@ -106,7 +109,7 @@
 	#assert Amx Mod X Version 1.83 and above is needed to run this plugin!
 #endif
 
-#define PLUGIN_VERSION "v1.2.1"
+#define PLUGIN_VERSION "v1.2.2"
 
 #define PREFIX "[ ^4AMXX^1 ]"
 
@@ -168,6 +171,7 @@ public plugin_natives() {
 	register_native("is_client_onboxmenu","native_is_client_onboxmenu",0);
 	register_native("client_forceboxmenu","native_client_forceboxmenu",0);
 	register_native("create_surprisebox","native_create_surprisebox",0);
+	register_native("remove_surprisebox","native_remove_surprisebox",0);
 	register_native("purge_surpriseboxes","native_purge_surpriseboxes",0);
 	register_native("get_surprisebox_count","native_get_surprisebox_count",0);
 }
@@ -216,6 +220,28 @@ public native_create_surprisebox(pluginid, params) {
 		return INVALID_HANDLE;
 
 	return ent;
+}
+
+public native_remove_surprisebox(pluginid, params) {
+	static entid, szClassname[32];
+
+	entid = get_param(1);
+
+	if (!pev_valid(entid))
+	{
+		log_error(AMX_ERR_NATIVE,"[Suprise Box API] ERROR: Invalid entity ID %d",entid);
+		return 0;
+	}
+
+	pev(entid,pev_classname,szClassname,charsmax(szClassname));
+
+	if (!equal(szClassname,g_szSurpriseBoxClassname))
+		return 0;
+
+	engfunc(EngFunc_RemoveEntity,entid);
+	g_iEntCount--;
+
+	return 1;
 }
 
 public native_purge_surpriseboxes(pluginid, params) {
