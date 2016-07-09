@@ -1,6 +1,6 @@
 /* Supply Box API
 
-* Updated to v1.2.1
+* Updated to v1.2.2
 * By Hyuna
 * Creator URL: http://steamcommunity.com/id/KissMyAsscom
 */
@@ -76,6 +76,15 @@ native client_forceboxmenu(client);
 native create_surprisebox(Float:origin[3]);
 
 /**
+ * Removes a specific surprise box entity.
+ *
+ * @param iEnt	The surprise box entity id.
+ * @return	Returns 1 on success, 0 if the ent isn't surprise box.
+ * @error	Invaild entity.
+ */
+native remove_surprisebox(iEnt);
+
+/**
  * Purge all supply boxes entites.
  *
  * @noparams
@@ -90,4 +99,3 @@ native purge_surpriseboxes();
  * @return		Supply boxes in the map.
  */
 native get_surprisebox_count();
-
