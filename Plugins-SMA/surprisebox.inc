@@ -10,14 +10,10 @@
 #endif
 #define _surprisebox_included
 
-#if AMXX_VERSION_NUM >= 175
-	#pragma reqlib SurpriseBox
+#pragma reqlib SurpriseBox
 
-	#if !defined AMXMODX_NOAUTOLOAD
-		#pragma loadlib SurpriseBox
-	#endif
-#else
-	#pragma library SurpriseBox
+#if !defined AMXMODX_NOAUTOLOAD
+	#pragma loadlib SurpriseBox
 #endif
 
 // Max Surprise Box entites - to prevent crashes and lags
